@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 
 from typing import List, Optional
+from tqdm import tqdm
 
 EMPTY_TOKEN = '<EMPTY>'
 OOV_TOKEN = '<OOV>'
@@ -95,7 +96,7 @@ class Vocabulary:
 
         result = {}
 
-        for indices in indices.indices:
+        for indices in tqdm(indices.indices):
             indices = indices.numpy().tolist()
             if indices[0] not in result:
                 result[indices[0]] = []
@@ -253,7 +254,7 @@ class Vocabulary:
         indices = []
         values = []
 
-        for idx_sample in range(0, len(samples)):
+        for idx_sample in tqdm(range(0, len(samples))):
             sample = samples[idx_sample]
             sample_sparse = self.sample_to_binary_sparse(sample, max_len)
 
