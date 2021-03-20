@@ -23,7 +23,7 @@ class Vocabulary:
         self.default_sample_length = default_sample_length
 
     @staticmethod
-    def builder(name: str) -> 'VocabularyBuilder':
+    def builder(name: str = 'default') -> 'VocabularyBuilder':
         return VocabularyBuilder(name)
 
     def token_to_index(self, token: str) -> int:
@@ -209,7 +209,7 @@ class Vocabulary:
 
         tokens, max_len = self._calculate_max_len(sample, max_len)
 
-        result = np.zeros(max_len)
+        result = np.zeros(max_len, dtype='int32')
         result[:] = self.token_to_index(EMPTY_TOKEN)
 
         for i in range(0, min(max_len, len(tokens))):
@@ -276,7 +276,7 @@ class Vocabulary:
         if max_len is None:
             max_len = self.default_sample_length
 
-        result = np.zeros([len(samples), max_len])
+        result = np.zeros([len(samples), max_len], dtype='int32')
         for idx_sample in range(0, len(samples)):
             sample = samples[idx_sample]
             result[idx_sample] = self.sample_to_indices(sample, max_len)
