@@ -8,11 +8,22 @@ SAMPLES = [
 
 
 class TestVocabulary:
+
+    def test_vocabulary_max_size(self):
+        voc = Vocabulary \
+            .builder()\
+            .add_samples(SAMPLES)\
+            .build(max_token_count=5)
+
+        print(voc.token2index)
+        print(voc)
+        assert True
+
     def test_vocabulary(self):
-        voc = Vocabulary\
-            .builder('sample')\
-            .add_sample(SAMPLES[0])\
-            .add_sample(SAMPLES[1])\
+        voc = Vocabulary \
+            .builder('sample') \
+            .add_sample(SAMPLES[0]) \
+            .add_sample(SAMPLES[1]) \
             .build()
 
         """

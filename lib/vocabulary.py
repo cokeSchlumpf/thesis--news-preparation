@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import warnings
 
-from typing import List, Optional
+from typing import List, Optional, Union
 from tqdm import tqdm
 
 EMPTY_TOKEN = '<EMPTY>'
@@ -151,7 +151,7 @@ class Vocabulary:
 
         return result
 
-    def sample_to_binary_indices(self, sample: str,  max_len: Optional[int] = None) -> np.array:
+    def sample_to_binary_indices(self, sample: Union[str, List[str]], max_len: Optional[int] = None) -> np.array:
         """
         Maps a sample to a 2-dimensional array (one-hot encoded); shape: [max_len, voc_size].
 
@@ -174,7 +174,7 @@ class Vocabulary:
 
         return result
 
-    def sample_to_binary_sparse(self, sample: str, max_len: Optional[int] = None) -> tf.SparseTensor:
+    def sample_to_binary_sparse(self, sample: Union[str, List[str]], max_len: Optional[int] = None) -> tf.SparseTensor:
         """
         Maps a sample to a 2-dimensional array (one-hot encoded); shape: [max_len, voc_size].
 
@@ -196,28 +196,8 @@ class Vocabulary:
 
         return tf.SparseTensor(indices=indices, values=values, dense_shape=[max_len, self.size])
 
-    def sample_to_indices(self, sample: str, max_len: Optional[int] = None) -> np.array:
-        """
-        Maps a sample to an array of token indices.
-
-        :param sample: The sample to transform.
-        :param max_len: The length of the output array.
-            If None, the default from the vocabulary will be used.
-            If 0, the length will be according to the sample.
-        :return: A Numpy array with the transformed sample.
-        """
-
-        tokens, max_len = self._calculate_max_len(sample, max_len)
-
-        result = np.zeros(max_len, dtype='int32')
-        result[:] = self.token_to_index(EMPTY_TOKEN)
-
-        for i in range(0, min(max_len, len(tokens))):
-            result[i] = self.token_to_index(tokens[i])
-
-        return result
-
-    def samples_to_binary_indices(self, samples, max_len: Optional[int] = None) -> np.array:
+    def samples_to_binary_indices(
+            self, samples: List[Union[str, List[str]]], max_len: Optional[int] = None) -> np.array:
         """
         Maps a list of samples to a 3-dimensional array.
         1st dimension will be samples, 2nd indices for token positions, 3rd for token indices (one-hot encoded).
@@ -238,7 +218,8 @@ class Vocabulary:
 
         return result
 
-    def samples_to_binary_sparse(self, samples, max_len: Optional[int] = None) -> tf.SparseTensor:
+    def samples_to_binary_sparse(
+            self, samples: List[Union[str, List[str]]], max_len: Optional[int] = None) -> tf.SparseTensor:
         """
         Maps a list of samples to a 3-dimensional sparse tensor.
         1st dimension will be samples, 2nd indices for token positions, 3rd for token indices (one-hot encoded).
@@ -263,13 +244,43 @@ class Vocabulary:
 
         return tf.SparseTensor(indices=indices, values=values, dense_shape=[len(samples), max_len, self.size])
 
-    def samples_to_indices(self, samples, max_len: Optional[int] = None) -> np.array:
+    def sample_to_indices(self, sample: Union[str, List[str]], max_len: Optional[int] = None, include_oov: bool = True) -> np.array:
+        """
+        Maps a sample to an array of token indices.
+
+        :param sample: The sample to transform.
+        :param max_len: The length of the output array.
+            If None, the default from the vocabulary will be used.
+            If 0, the length will be according to the sample.
+        :param include_oov: Whether out-of-vocabulary words should be included (default) or skipped.
+        :return: A Numpy array with the transformed sample.
+        """
+
+        tokens, max_len = self._calculate_max_len(sample, max_len)
+
+        result = np.zeros(max_len, dtype='int32')
+        result[:] = self.token_to_index(EMPTY_TOKEN)
+        tokens_idx = [self.token_to_index(token) for token in tokens]
+
+        if include_oov is False:
+            oov_idx = self.token_to_index(OOV_TOKEN)
+            tokens_idx = [token for token in tokens if token != oov_idx]
+
+        for i in range(0, min(max_len, len(tokens_idx))):
+            result[i] = self.token_to_index(tokens_idx[i])
+
+        return result
+
+    def samples_to_indices(
+            self, samples: List[Union[str, List[str]]],
+            max_len: Optional[int] = None, include_oov: bool = True) -> np.array:
         """
         Maps a list of samples to a 2-dimensional array. 1st dimension will be samples, 2nd indices for tokens.
         The shape of the output is [samples.size, max_len].
 
         :param samples: The list/ array of samples.
         :param max_len: The size of the 2nd dimension. If None, the default of the vocabulary will be used.
+        :param include_oov: Whether out-of-vocabulary words should be included (default) or skipped.
         :return: The transformed samples.
         """
 
@@ -279,12 +290,15 @@ class Vocabulary:
         result = np.zeros([len(samples), max_len], dtype='int32')
         for idx_sample in range(0, len(samples)):
             sample = samples[idx_sample]
-            result[idx_sample] = self.sample_to_indices(sample, max_len)
+            result[idx_sample] = self.sample_to_indices(sample, max_len, include_oov)
 
         return result
 
-    def _calculate_max_len(self, sample: str, max_len: Optional[int]):
-        tokens = sample.split(' ')
+    def _calculate_max_len(self, sample: Union[str, List[str]], max_len: Optional[int]):
+        if isinstance(sample, str):
+            tokens = sample.split(' ')
+        else:
+            tokens = sample
 
         if max_len is None:
             max_len = self.default_sample_length
@@ -340,7 +354,25 @@ class VocabularyBuilder:
 
         return self
 
-    def add_sample(self, sample) -> 'VocabularyBuilder':
+    def add_samples(self, samples: List[Union[str, List[str]]]) -> 'VocabularyBuilder':
+        """
+        Adds a set of samples to the vocabulary.
+
+        :param samples: The set of samples
+        :return: The builder instance
+        """
+
+        if len(samples) == 0:
+            return self
+        elif isinstance(samples[0], List):
+            return self.add_sample_tokenized(samples)
+        else:
+            for sample in samples:
+                self.add_sample(sample)
+
+            return self
+
+    def add_sample(self, sample: Union[str, List[str]]) -> 'VocabularyBuilder':
         """
         Adds a new sample to the vocabulary.
 
@@ -348,20 +380,47 @@ class VocabularyBuilder:
         :return: The builder instance
         """
 
-        tokens = sample.split(' ')
-        self.max_sample_len = max(len(tokens), self.max_sample_len)
+        if isinstance(sample, List):
+            return self.add_sample_tokenized(sample)
+        else:
+            tokens = sample.split(' ')
+            return self.add_sample_tokenized(tokens)
 
-        for token in tokens:
-            self.add_token(token)
+    def add_samples_tokenized(self, tokens: List[List[str]]) -> 'VocabularyBuilder':
+        """
+        Adds a set of tokenized samples to the vocabulary.
+
+        :param tokens: The set of samples
+        :return: The builder instance
+        """
+
+        for sample in tokens:
+            self.add_sample_tokenized(sample)
 
         return self
 
-    def build(self, min_token_occurrences: int = 0):
+    def add_sample_tokenized(self, tokens: List[str]) -> 'VocabularyBuilder':
+        """
+        Adds a new sample to the vocabulary.
+
+        :param tokens: The tokenized sample to be added to the vocabulary.
+        :return: The builder instance.
+        """
+
+        self.max_sample_len = max(len(tokens), self.max_sample_len)
+
+        for token in tokens:
+            self.add_token(str.strip(token))
+
+        return self
+
+    def build(self, min_token_occurrences: int = 0, max_token_count: Optional[int] = None):
         """
         Creates the Vocabulary instance.
 
         :param min_token_occurrences: The number of minimum occurrences in the samples
                                       to include the token in the vocabulary.
+        :param max_token_count: When provided, the resulting vocabulary will only use the `max_token_count` most common words.
         :return: The vocabulary instance.
         """
 
@@ -369,9 +428,31 @@ class VocabularyBuilder:
             for token in self._token2index.keys():
                 if token is not OOV_TOKEN and token is not EMPTY_TOKEN and \
                         self._token_count[token] < min_token_occurrences:
-
                     idx = self._token2index[token]
                     del self._index2token[idx]
                     del self._token2index[token]
+
+        self._token_count = dict(sorted(self._token_count.items(), key=lambda item: item[1], reverse=True))
+
+        #
+        # rebuild indexes based on occurrences
+        #
+        self.size = 1
+        self._token2index = {
+            EMPTY_TOKEN: 0
+        }
+        self._index2token = {
+            0: EMPTY_TOKEN
+        }
+
+        if max_token_count is not None:
+            keys = list(self._token_count.keys())[:max_token_count]
+        else:
+            keys = list(self._token_count.keys())
+
+        for token in keys:
+            self.add_token(token)
+
+        self.add_token(OOV_TOKEN)
 
         return Vocabulary(self.name, self._token2index, self._index2token, self.max_sample_len)

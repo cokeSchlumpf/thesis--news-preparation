@@ -107,6 +107,28 @@ def preprocess_text(
     return re.sub(WS_PATTERN, ' ', joined)
 
 
+def preprocess_tokens(
+        s: str, lang: Optional[Language] = None,
+        pipeline: Optional[List[Callable[[Token], None]]] = None) -> List[str]:
+
+    """
+    Preprocesses a string with the help of spaCy. Allows different composable pre-processing methods.
+
+    :param s: The string to be pre-processed
+    :param lang: A spaCy language pipeline. As returned by `spacy.load()`
+    :param pipeline:  A list of pre-processing functions
+    :return: The pre-processed list of tokens
+    """
+
+    doc, pipeline = _parse(s, lang, pipeline)
+
+    for task in pipeline:
+        for token in doc:
+            task(token)
+
+    return [str.strip(token._.ppt_output) for token in doc if len(str.strip(token._.ppt_output)) > 0]
+
+
 def preprocess_sentences(
         s: str, lang: Optional[Language] = None,
         pipeline: Optional[List[Callable[[Token], None]]] = None) -> str:
