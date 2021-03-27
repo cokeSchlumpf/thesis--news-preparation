@@ -5,6 +5,7 @@ from functional import seq
 from spacy.tokens import Token
 from spacy.language import Language
 from typing import Callable, List, Optional
+from tqdm import tqdm
 
 Token.set_extension('ppt_output', default='')
 WS_PATTERN = re.compile(r'\s{2,}')
@@ -150,6 +151,48 @@ def preprocess_sentences(
     return seq(doc.sents)\
         .map(lambda sentence: ''.join([token._.ppt_output for token in sentence]))\
         .map(lambda sentence: re.sub(WS_PATTERN, ' ', sentence))
+
+
+def preprocess_doc(doc: spacy.language.Doc, pipeline: List[Callable[[Token], None]]) -> str:
+    """
+    Executes the pre-procesisng pipeline on a spacy doc.
+
+    :param doc: A spacy document
+    :param pipeline:
+    :return:
+    """
+    for task in pipeline:
+        for token in doc:
+            task(token)
+
+    joined = ''.join([token._.ppt_output for token in doc])
+    return re.sub(WS_PATTERN, ' ', joined)
+
+
+def preprocess_all(
+        s: List[str], lang: Optional[Language] = None,
+        pipeline: Optional[List[Callable[[Token], None]]] = None,
+        batch_size: Optional[int] = None, n_process: Optional[int] = -1) -> List[str]:
+    """
+    Preprocesses a list of samples.
+
+    :param s: The list of samples.
+    :param lang: A spaCy language pipeline. As returned by `spacy.load()`
+    :param pipeline:  A list of pre-processing functions
+    :param batch_size: The batch size while processing the samples
+    :param n_process: The number of parallel processes; -1 is CPU cores count
+    :return: The pre-processed string
+    """
+
+    if lang is None:
+        lang = spacy.load('de_dep_news_trf')
+
+    if pipeline is None:
+        pipeline = [to_lower, simple_punctuation_only]
+
+    result = [preprocess_doc(doc, pipeline) for doc in tqdm(lang.pipe(s, batch_size=batch_size, n_process=n_process))]
+
+    return result
 
 
 def _parse(

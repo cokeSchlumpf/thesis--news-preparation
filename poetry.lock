@@ -245,6 +245,25 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "gensim"
+version = "4.0.0"
+description = "Python framework for fast Vector Space Modelling"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+numpy = ">=1.11.3"
+scipy = ">=0.18.1"
+smart-open = ">=1.8.1"
+
+[package.extras]
+distributed = ["Pyro4 (>=4.27)"]
+docs = ["pytest", "mock", "cython", "testfixtures", "Morfessor (==2.0.2a4)", "pyemd", "nmslib", "python-Levenshtein (>=0.10.2)", "Pyro4 (>=4.27)", "visdom (>=0.1.8,!=0.1.8.7)", "sphinx", "sphinx-gallery", "sphinxcontrib.programoutput", "sphinxcontrib-napoleon", "matplotlib", "memory-profiler", "annoy", "pyro4", "nltk", "statsmodels", "pandas"]
+test = ["pytest", "mock", "cython", "testfixtures", "Morfessor (==2.0.2a4)", "pyemd", "nmslib", "python-Levenshtein (>=0.10.2)", "visdom (>=0.1.8,!=0.1.8.7)"]
+test-win = ["pytest", "mock", "cython", "testfixtures", "Morfessor (==2.0.2a4)", "pyemd", "nmslib", "python-Levenshtein (>=0.10.2)"]
+
+[[package]]
 name = "google-auth"
 version = "1.27.1"
 description = "Google Authentication Library"
@@ -560,6 +579,17 @@ six = ">=1.9.0"
 image = ["scipy (>=0.14)", "Pillow (>=5.2.0)"]
 pep8 = ["flake8"]
 tests = ["pandas", "pillow", "tensorflow", "keras", "pytest", "pytest-xdist", "pytest-cov"]
+
+[[package]]
+name = "langdetect"
+version = "1.0.8"
+description = "Language detection library ported from Google's language-detection."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
 
 [[package]]
 name = "markdown"
@@ -1047,6 +1077,14 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-levenshtein"
+version = "0.12.2"
+description = "Python extension for computing string edit distances and similarities."
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "pytz"
@@ -1619,7 +1657,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "018700976c76b4374bc2820a5b729d30b9feb2ff250c7e5a9f944f311e5fd0d8"
+content-hash = "51840af68471483e63750558be4a516f8c9fa62358b3179d2887d4c3553317d3"
 
 [metadata.files]
 absl-py = [
@@ -1799,6 +1837,18 @@ gast = [
     {file = "gast-0.3.3-py2.py3-none-any.whl", hash = "sha256:8f46f5be57ae6889a4e16e2ca113b1703ef17f2b0abceb83793eaba9e1351a45"},
     {file = "gast-0.3.3.tar.gz", hash = "sha256:b881ef288a49aa81440d2c5eb8aeefd4c2bb8993d5f50edae7413a85bfdb3b57"},
 ]
+gensim = [
+    {file = "gensim-4.0.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:d9fded8db8a429549757de8c33903cf3eb3966d3f388992308cbb6e703894d86"},
+    {file = "gensim-4.0.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:53f546d0fbaa6b2d833b9138684eb1c64b55760b202b50f34e722432f13430db"},
+    {file = "gensim-4.0.0-cp36-cp36m-win_amd64.whl", hash = "sha256:3863c9d19586f43787940c3d502ce788070871461a2efb8c5eac53bf06a34026"},
+    {file = "gensim-4.0.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:f505cd12661ef9ef4755152155735acf76412b172163845287fa7b7a830aa1d1"},
+    {file = "gensim-4.0.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:447a0427392bebefc67716070f3b3423f0bcab9b7566c3d89da1e9d2f8bb58e5"},
+    {file = "gensim-4.0.0-cp37-cp37m-win_amd64.whl", hash = "sha256:c5abac78e4103249f35f1ccbfa900f75e37a2d4e4fadaf6912d1911cbacf196f"},
+    {file = "gensim-4.0.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:924dc96b3a06e2c9fd6983417453167ffd8af033ed625546ceb6e72e96a368aa"},
+    {file = "gensim-4.0.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:5b9178311a96dd6d0103e6eebebfed98425d7005d8c30c6b12234fd2a4bfad01"},
+    {file = "gensim-4.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:4febb1c6794d44ae42bf319ab3e8a722944429a94ef0a4199bdd29a63e21fc81"},
+    {file = "gensim-4.0.0.tar.gz", hash = "sha256:a9c9fed52e2901ad04f9caf73a5dd782e5ce8054f71b346d72f04ddff1b7b432"},
+]
 google-auth = [
     {file = "google-auth-1.27.1.tar.gz", hash = "sha256:d8958af6968e4ecd599f82357ebcfeb126f826ed0656126ad68416f810f7531e"},
     {file = "google_auth-1.27.1-py2.py3-none-any.whl", hash = "sha256:63a5636d7eacfe6ef5b7e36e112b3149fa1c5b5ad77dd6df54910459bcd6b89f"},
@@ -1952,6 +2002,10 @@ jupyterlab-widgets = [
 keras-preprocessing = [
     {file = "Keras_Preprocessing-1.1.2-py2.py3-none-any.whl", hash = "sha256:7b82029b130ff61cc99b55f3bd27427df4838576838c5b2f65940e4fcec99a7b"},
     {file = "Keras_Preprocessing-1.1.2.tar.gz", hash = "sha256:add82567c50c8bc648c14195bf544a5ce7c1f76761536956c3d2978970179ef3"},
+]
+langdetect = [
+    {file = "langdetect-1.0.8-py2-none-any.whl", hash = "sha256:f37495e63607865e47deed08d78f7f8e58172658216ff954b2f14671bcd87740"},
+    {file = "langdetect-1.0.8.tar.gz", hash = "sha256:363795ea005f1243c958e953245dac5d814fabdc025c9afa91588c5fa6b2fa83"},
 ]
 markdown = [
     {file = "Markdown-3.3.4-py3-none-any.whl", hash = "sha256:96c3ba1261de2f7547b46a00ea8463832c921d3f9d6aba3f255a6f71386db20c"},
@@ -2294,6 +2348,9 @@ pytest = [
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
+]
+python-levenshtein = [
+    {file = "python-Levenshtein-0.12.2.tar.gz", hash = "sha256:dc2395fbd148a1ab31090dd113c366695934b9e85fe5a4b2a032745efd0346f6"},
 ]
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
